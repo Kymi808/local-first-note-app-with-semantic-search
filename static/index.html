@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Notes</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Notes</h1>
+                <button id="new-note-btn" title="New note">+</button>
+            </div>
+            <input type="text" id="search-input" placeholder="Search notes..." autocomplete="off">
+            <div id="note-list"></div>
+        </aside>
+
+        <main class="editor">
+            <div id="editor-empty" class="empty-state">
+                <p>Select a note or create a new one</p>
+            </div>
+            <div id="editor-content" class="hidden">
+                <div class="editor-toolbar">
+                    <input type="text" id="note-title" placeholder="Note title">
+                    <div class="toolbar-actions">
+                        <button id="preview-toggle">Preview</button>
+                        <button id="save-btn">Save</button>
+                        <button id="delete-btn" class="danger">Delete</button>
+                    </div>
+                </div>
+                <input type="text" id="note-tags" placeholder="Tags (comma-separated)">
+                <textarea id="note-body" placeholder="Write your note in markdown..."></textarea>
+                <div id="note-preview" class="hidden markdown-body"></div>
+            </div>
+        </main>
+
+        <aside class="assistant-panel">
+            <div class="assistant-header">
+                <h2>Assistant</h2>
+            </div>
+            <div id="assistant-messages"></div>
+            <div class="assistant-input">
+                <input type="text" id="assistant-question" placeholder="Ask about your notes...">
+                <button id="ask-btn">Ask</button>
+            </div>
+        </aside>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

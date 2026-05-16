@@ -7,6 +7,26 @@ from app.config import NOTES_DIR
 from app.models import Note, NoteMetadata
 
 
+_NOTE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,127}$")
+
+
+def _safe_note_path(note_id: str) -> Path | None:
+    """Resolve a note_id to a path inside NOTES_DIR, or None if invalid.
+
+    Rejects ids that don't match the slug pattern, and verifies the resolved
+    path is contained within NOTES_DIR (defense-in-depth against traversal).
+    """
+    if not _NOTE_ID_RE.match(note_id):
+        return None
+    path = (NOTES_DIR / f"{note_id}.md").resolve()
+    notes_root = NOTES_DIR.resolve()
+    try:
+        path.relative_to(notes_root)
+    except ValueError:
+        return None
+    return path
+
+
 def _slugify(text: str) -> str:
     slug = re.sub(r"[^\w\s-]", "", text.lower().strip())
     slug = re.sub(r"[\s_]+", "-", slug)
@@ -61,8 +81,8 @@ def list_notes() -> list[NoteMetadata]:
 
 
 def get_note(note_id: str) -> Note | None:
-    path = NOTES_DIR / f"{note_id}.md"
-    if not path.exists():
+    path = _safe_note_path(note_id)
+    if path is None or not path.exists():
         return None
     return _read_note_file(path)
 
@@ -83,8 +103,8 @@ def create_note(title: str, content: str, tags: list[str] | None = None) -> Note
 
 
 def update_note(note_id: str, title: str, content: str, tags: list[str] | None = None) -> Note | None:
-    path = NOTES_DIR / f"{note_id}.md"
-    if not path.exists():
+    path = _safe_note_path(note_id)
+    if path is None or not path.exists():
         return None
     existing = _read_note_file(path)
     now = datetime.now(timezone.utc)
@@ -100,8 +120,8 @@ def update_note(note_id: str, title: str, content: str, tags: list[str] | None =
 
 
 def delete_note(note_id: str) -> bool:
-    path = NOTES_DIR / f"{note_id}.md"
-    if not path.exists():
+    path = _safe_note_path(note_id)
+    if path is None or not path.exists():
         return False
     path.unlink()
     return True
